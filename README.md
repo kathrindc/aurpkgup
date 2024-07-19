@@ -9,14 +9,17 @@ This script was created, because I just want to know if any of my AUR packages a
 Install [jq](https://archlinux.org/packages/extra/x86_64/jq/) (used to parse AUR RPC responses) as such:
 
 ```sh
-$ sudo pacman -Sy jq
+sudo pacman -Sy jq
 ```
 
-Then just download the script into your user's local bin folder and mark it as executable:
+Then just download the script into your user's local bin folder and mark it as executable like this:
 
 ```sh
-$ curl -o ~/.local/bin/aurpkgup 'https://raw.githubusercontent.com/kathrindc/aurpkgup/main/aurpkgup'
-$ chmod u+x ~/.local/bin/aurpkgup
+curl -o ~/.local/bin/aurpkgup 'https://raw.githubusercontent.com/kathrindc/aurpkgup/main/aurpkgup'
+```
+
+```sh
+chmod u+x ~/.local/bin/aurpkgup
 ```
 
 ## Usage
