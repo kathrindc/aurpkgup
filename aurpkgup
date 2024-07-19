@@ -1,4 +1,43 @@
-xivlauncher-git
-pcsx2-latest-bin
+#!/usr/bin/env sh
 
-socranop
+# read in every line as a single package name from ~/.config/aurpkgup
+while read pkgname ; do
+	# skip empty lines in the config file
+	if [ -z "$pkgname" ]; then
+		continue
+	fi
+
+	# print neat little status message
+	echo -e "\033[0;34mChecking package \"\033[1;36m$pkgname\033[0;34m\"\033[0m"
+
+	# retrieve online package metadata from AUR service
+	aurdata="$(curl -s "https://aur.archlinux.org/rpc/v5/info?arg[]=$pkgname")"
+	aurdata_ec="$?"
+
+	if [ "$aurdata_ec" != "0" ]; then
+		echo -e "\033[41m\033[1;37m ERROR \033[0m\033[0;31m curl exited with code $aurdata_ec\033[0m"
+		continue
+	fi
+	
+	# check if there is exactly one result for the query
+	result_count="$(echo "$aurdata" | jq '.resultcount')" 
+	
+	if [ "$result_count" -gt "1" ]; then
+		echo -e "\033[41m ERROR \033[0m\033[0;31m rpc services returned too many results\033[0m"
+		continue
+	elif [ "$result_count" -lt "1" ]; then
+		echo -e "\033[41m ERROR \033[0m\033[0;31m rpc services returned no results\033[0m"
+		continue
+	fi
+
+	# get latest online version for package and compare it
+	online_version="$(echo "$aurdata" | jq -r '.results[0].Version')"
+	local_version="$(pacman -Q "$pkgname" | awk '{print $2}')"
+
+	if [ "$online_version" == "$local_version" ]; then
+		echo -e "\033[0;32mPackage is up-to-date.\033[0m"
+	else
+		echo -e "\033[0;33mPackage is out-of-date ($local_version -> $online_version)\033[0m"
+	fi
+done < $HOME/.config/aurpkgup
+
